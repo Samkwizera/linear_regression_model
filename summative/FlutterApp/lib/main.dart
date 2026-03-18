@@ -589,7 +589,7 @@ class _PredictionPageState extends State<PredictionPage>
                       color: Colors.white, size: 20),
                   SizedBox(width: 10),
                   Text(
-                    'Predict Insurance Cost',
+                    'Predict',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,
