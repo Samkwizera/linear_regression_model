@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 // ── Update this URL once the API is deployed on Render ───────────────────────
-const String kApiBaseUrl = 'https://insurance-charges-api.onrender.com';
+const String kApiBaseUrl = 'https://insuarance-charges-api.onrender.com';
 // For local testing use: 'http://10.0.2.2:8000' (Android emulator)
 //                   or   'http://localhost:8000'  (web / desktop)
 

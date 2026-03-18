@@ -41,7 +41,7 @@ app.add_middleware(
         "http://localhost:3000",
         "http://localhost:8080",
         "http://10.0.2.2:8000",   # Android emulator → host loopback
-        "https://insurance-charges-api.onrender.com",
+        "https://insuarance-charges-api.onrender.com",
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST"],
