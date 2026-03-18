@@ -1,9 +1,9 @@
+import csv
 import io
 import os
 
 import joblib
 import numpy as np
-import pandas as pd
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -156,33 +156,53 @@ async def retrain(file: UploadFile = File(...)):
 
     content = await file.read()
     try:
-        df = pd.read_csv(io.StringIO(content.decode("utf-8")))
+        reader = csv.DictReader(io.StringIO(content.decode("utf-8")))
+        rows = list(reader)
     except Exception as exc:
         raise HTTPException(status_code=400, detail=f"Could not parse CSV: {exc}")
 
+    if not rows:
+        raise HTTPException(status_code=422, detail="CSV file is empty.")
+
     required = {"age", "sex", "bmi", "children", "smoker", "region", "charges"}
-    missing = required - set(df.columns)
+    missing = required - set(rows[0].keys())
     if missing:
         raise HTTPException(
             status_code=422,
             detail=f"CSV is missing required columns: {missing}",
         )
 
-    # Encode
-    df = df.drop_duplicates()
-    df["sex"] = df["sex"].map({"female": 0, "male": 1})
-    df["smoker"] = df["smoker"].map({"no": 0, "yes": 1})
-    df["region"] = df["region"].map(REGION_MAP)
-    df = df.dropna(subset=["age", "sex", "bmi", "children", "smoker", "region", "charges"])
+    SEX_MAP = {"female": 0, "male": 1}
+    SMOKER_MAP = {"no": 0, "yes": 1}
 
-    if len(df) < 50:
+    X_list, y_list, seen = [], [], set()
+    for row in rows:
+        try:
+            key = tuple(row[c] for c in required)
+            if key in seen:
+                continue
+            seen.add(key)
+            x = [
+                float(row["age"]),
+                float(SEX_MAP[row["sex"].strip().lower()]),
+                float(row["bmi"]),
+                float(row["children"]),
+                float(SMOKER_MAP[row["smoker"].strip().lower()]),
+                float(REGION_MAP[row["region"].strip().lower()]),
+            ]
+            X_list.append(x)
+            y_list.append(float(row["charges"]))
+        except (KeyError, ValueError):
+            continue
+
+    if len(X_list) < 50:
         raise HTTPException(
             status_code=422,
             detail="Dataset too small — need at least 50 valid rows.",
         )
 
-    X = df[["age", "sex", "bmi", "children", "smoker", "region"]].values.astype(float)
-    y = df["charges"].values.astype(float)
+    X = np.array(X_list, dtype=float)
+    y = np.array(y_list, dtype=float)
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42
