@@ -611,7 +611,6 @@ class _PredictionPageState extends State<PredictionPage> {
                 errorBorder: InputBorder.none,
                 contentPadding:
                     const EdgeInsets.symmetric(vertical: 14),
-                isDense: true,
                 errorStyle:
                     const TextStyle(color: _kErr, fontSize: 11),
               ),
