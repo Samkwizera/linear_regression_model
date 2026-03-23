@@ -12,16 +12,13 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeRegressor
 from typing import Literal
 
-# ── Paths ─────────────────────────────────────────────────────────────────────
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "best_model.pkl")
 SCALER_PATH = os.path.join(BASE_DIR, "scaler.pkl")
 
-# ── Load artifacts ────────────────────────────────────────────────────────────
 model = joblib.load(MODEL_PATH)
 scaler = joblib.load(SCALER_PATH)
 
-# ── App ───────────────────────────────────────────────────────────────────────
 app = FastAPI(
     title="Healthcare Insurance Charges Prediction API",
     description=(
@@ -32,8 +29,7 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# ── CORS ──────────────────────────────────────────────────────────────────────
-# Specific origins only — no wildcard (*) for security
+# no wildcard origins — locks down which frontends can call this API
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -48,7 +44,6 @@ app.add_middleware(
     allow_headers=["Content-Type", "Authorization", "Accept"],
 )
 
-# ── Schema ────────────────────────────────────────────────────────────────────
 class InsuranceInput(BaseModel):
     age: int = Field(
         ..., ge=18, le=64,
@@ -93,7 +88,6 @@ class RetrainResponse(BaseModel):
     samples_used: int
 
 
-# ── Helper ────────────────────────────────────────────────────────────────────
 REGION_MAP = {"northeast": 0, "northwest": 1, "southeast": 2, "southwest": 3}
 
 
@@ -108,7 +102,6 @@ def encode_and_scale(data: InsuranceInput) -> np.ndarray:
     return scaler.transform(features)
 
 
-# ── Routes ────────────────────────────────────────────────────────────────────
 @app.get("/", tags=["Health"])
 def root():
     return {
@@ -217,11 +210,11 @@ async def retrain(file: UploadFile = File(...)):
 
     r2 = float(new_model.score(X_test_scaled, y_test))
 
-    # Persist to disk
+    # write to disk so the updated model survives a restart
     joblib.dump(new_model, MODEL_PATH)
     joblib.dump(new_scaler, SCALER_PATH)
 
-    # Hot-swap in memory
+    # swap into the live process so predictions use the new model immediately
     model = new_model
     scaler = new_scaler
 
