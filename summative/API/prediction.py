@@ -12,10 +12,12 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeRegressor
 from typing import Literal
 
+# resolve paths relative to this file so the API works wherever uvicorn is launched from
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "best_model.pkl")
 SCALER_PATH = os.path.join(BASE_DIR, "scaler.pkl")
 
+# load once at startup so the first request isn't slow
 model = joblib.load(MODEL_PATH)
 scaler = joblib.load(SCALER_PATH)
 
@@ -44,6 +46,7 @@ app.add_middleware(
     allow_headers=["Content-Type", "Authorization", "Accept"],
 )
 
+# field ranges mirror the training dataset — inputs outside these would be out-of-distribution
 class InsuranceInput(BaseModel):
     age: int = Field(
         ..., ge=18, le=64,
@@ -144,6 +147,7 @@ async def retrain(file: UploadFile = File(...)):
     On success the updated model and scaler are saved to disk and loaded
     into memory immediately — no restart required.
     """
+    # without global, Python treats model/scaler as local and the reassignment below would fail
     global model, scaler
 
     if not (file.filename or "").endswith(".csv"):
@@ -159,6 +163,7 @@ async def retrain(file: UploadFile = File(...)):
     if not rows:
         raise HTTPException(status_code=422, detail="CSV file is empty.")
 
+    # check first row only — DictReader gives every row the same keys
     required = {"age", "sex", "bmi", "children", "smoker", "region", "charges"}
     missing = required - set(rows[0].keys())
     if missing:

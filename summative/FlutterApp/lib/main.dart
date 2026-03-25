@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 
 const String kApiBaseUrl = 'https://insuarance-charges-api.onrender.com';
 
+// app-wide color palette — centralised here so changing one value updates everywhere
 const _kBg      = Color(0xFF111111);
 const _kSurface = Color(0xFF1E1E1E);
 const _kCard    = Color(0xFF242424);
@@ -18,6 +19,7 @@ const _kErr     = Color(0xFFFF4444);
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  // force light status-bar icons so they're visible against the dark background
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.light,
@@ -52,6 +54,7 @@ class PredictionPage extends StatefulWidget {
 
 class _PredictionPageState extends State<PredictionPage> {
   final _formKey  = GlobalKey<FormState>();
+  // separate controller per numeric field so we can read and clear each one independently
   final _ageCtr   = TextEditingController();
   final _bmiCtr   = TextEditingController();
   final _childCtr = TextEditingController();
@@ -61,12 +64,14 @@ class _PredictionPageState extends State<PredictionPage> {
 
   @override
   void dispose() {
+    // controllers hold native resources, so we free them when the page leaves the tree
     _ageCtr.dispose();
     _bmiCtr.dispose();
     _childCtr.dispose();
     super.dispose();
   }
 
+  // shows the predicted charge along with a Low / Medium / High risk label
   void _showResultDialog(double amount) {
     showDialog(
       context: context,
@@ -183,6 +188,7 @@ class _PredictionPageState extends State<PredictionPage> {
     );
   }
 
+  // shows API or validation errors in a dismissible dialog rather than a snackbar
   void _showErrorDialog(String error) {
     showDialog(
       context: context,
@@ -320,6 +326,7 @@ class _PredictionPageState extends State<PredictionPage> {
       _showErrorDialog(
           'Unable to reach server.\nCheck your internet connection.');
     } finally {
+      // always reset loading so the button doesn't stay disabled after an error
       setState(() => _loading = false);
     }
   }
@@ -522,6 +529,7 @@ class _PredictionPageState extends State<PredictionPage> {
     );
   }
 
+  // indent of 52 aligns the divider under the text column, clearing the leading icon
   Widget _divider() => Divider(
       height: 1,
       indent: 52,
@@ -642,6 +650,7 @@ class _PredictionPageState extends State<PredictionPage> {
     );
   }
 
+  // passing null to onPressed disables the button while a request is in flight
   Widget _buildPredictButton() {
     return SizedBox(
       height: 56,
