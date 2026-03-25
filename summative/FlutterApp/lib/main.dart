@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 
 const String kApiBaseUrl = 'https://insuarance-charges-api.onrender.com';
 
-// app-wide color palette — centralised here so changing one value updates everywhere
+// app-wide color palette
 const _kBg      = Color(0xFF111111);
 const _kSurface = Color(0xFF1E1E1E);
 const _kCard    = Color(0xFF242424);
@@ -19,7 +19,7 @@ const _kErr     = Color(0xFFFF4444);
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  // force light status-bar icons so they're visible against the dark background
+  // force light status bar icons so they're visible against the dark background
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.light,
@@ -64,14 +64,14 @@ class _PredictionPageState extends State<PredictionPage> {
 
   @override
   void dispose() {
-    // controllers hold native resources, so we free them when the page leaves the tree
+    
     _ageCtr.dispose();
     _bmiCtr.dispose();
     _childCtr.dispose();
     super.dispose();
   }
 
-  // shows the predicted charge along with a Low / Medium / High risk label
+  // here we want to  show the predicted charge along with a Low / Medium / High risk label
   void _showResultDialog(double amount) {
     showDialog(
       context: context,
@@ -147,7 +147,7 @@ class _PredictionPageState extends State<PredictionPage> {
                       color: _kOrange.withValues(alpha: 0.25)),
                 ),
                 child: Text(
-                  // thresholds eyeballed from the dataset — most non-smokers fall under $10k
+                  // thresholds eyeballed from the dataset  most non-smokers fall under $10k
                   amount < 10000
                       ? '✦  Low Risk'
                       : amount < 20000
@@ -188,7 +188,7 @@ class _PredictionPageState extends State<PredictionPage> {
     );
   }
 
-  // shows API or validation errors in a dismissible dialog rather than a snackbar
+  // to show API or validation errors in a dismissible dialog rather than a snackbar
   void _showErrorDialog(String error) {
     showDialog(
       context: context,

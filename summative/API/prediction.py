@@ -12,7 +12,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeRegressor
 from typing import Literal
 
-# resolve paths relative to this file so the API works wherever uvicorn is launched from
+# resolve path relative to this file so the API works wherever uvicorn is launched from
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "best_model.pkl")
 SCALER_PATH = os.path.join(BASE_DIR, "scaler.pkl")
@@ -31,7 +31,7 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# no wildcard origins — locks down which frontends can call this API
+# no wildcard origins 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -46,7 +46,7 @@ app.add_middleware(
     allow_headers=["Content-Type", "Authorization", "Accept"],
 )
 
-# field ranges mirror the training dataset — inputs outside these would be out-of-distribution
+# field ranges mirror the training dataset inputs outside these would be out-of-distribution
 class InsuranceInput(BaseModel):
     age: int = Field(
         ..., ge=18, le=64,
@@ -103,7 +103,7 @@ def encode_and_scale(data: InsuranceInput) -> np.ndarray:
         [[data.age, sex_enc, data.bmi, data.children, smoker_enc, region_enc]],
         dtype=float,
     )
-    # transform, not fit_transform — the scaler was already fit on training data
+    # transform, not fit_transform  the scaler was already fit on training data
     return scaler.transform(features)
 
 
