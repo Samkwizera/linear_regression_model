@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
+
 const String kApiBaseUrl = 'https://insuarance-charges-api.onrender.com';
 
 const _kBg      = Color(0xFF111111);
@@ -141,6 +142,7 @@ class _PredictionPageState extends State<PredictionPage> {
                       color: _kOrange.withValues(alpha: 0.25)),
                 ),
                 child: Text(
+                  // thresholds eyeballed from the dataset — most non-smokers fall under $10k
                   amount < 10000
                       ? '✦  Low Risk'
                       : amount < 20000
@@ -279,6 +281,7 @@ class _PredictionPageState extends State<PredictionPage> {
   }
 
   Future<void> _predict() async {
+    // dismiss keyboard so it doesn't block the loading spinner
     FocusScope.of(context).unfocus();
     if (!_formKey.currentState!.validate()) return;
     if (_sex == null || _smoker == null || _region == null) {
@@ -298,6 +301,7 @@ class _PredictionPageState extends State<PredictionPage> {
           'smoker':   _smoker,
           'region':   _region,
         }),
+      // Render free-tier cold starts can hit ~20s, so 25s avoids a false timeout
       ).timeout(const Duration(seconds: 25));
 
       if (res.statusCode == 200) {
@@ -591,7 +595,7 @@ class _PredictionPageState extends State<PredictionPage> {
           const SizedBox(width: 14),
           Expanded(
             child: DropdownButtonFormField<String>(
-              value: value,
+              initialValue: value,
               isExpanded: true,
               dropdownColor: _kCard,
               borderRadius: BorderRadius.circular(14),

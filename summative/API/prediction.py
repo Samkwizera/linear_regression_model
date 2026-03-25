@@ -36,7 +36,7 @@ app.add_middleware(
         "http://localhost",
         "http://localhost:3000",
         "http://localhost:8080",
-        "http://10.0.2.2:8000",   # Android emulator → host loopback
+        "http://10.0.2.2:8000",   
         "https://insuarance-charges-api.onrender.com",
     ],
     allow_credentials=True,
@@ -88,6 +88,7 @@ class RetrainResponse(BaseModel):
     samples_used: int
 
 
+# order must match the LabelEncoder used during training; changing these breaks predictions silently
 REGION_MAP = {"northeast": 0, "northwest": 1, "southeast": 2, "southwest": 3}
 
 
@@ -99,6 +100,7 @@ def encode_and_scale(data: InsuranceInput) -> np.ndarray:
         [[data.age, sex_enc, data.bmi, data.children, smoker_enc, region_enc]],
         dtype=float,
     )
+    # transform, not fit_transform — the scaler was already fit on training data
     return scaler.transform(features)
 
 
@@ -168,6 +170,7 @@ async def retrain(file: UploadFile = File(...)):
     SEX_MAP = {"female": 0, "male": 1}
     SMOKER_MAP = {"no": 0, "yes": 1}
 
+    # seen tracks row fingerprints to drop exact duplicates before training
     X_list, y_list, seen = [], [], set()
     for row in rows:
         try:
@@ -205,6 +208,7 @@ async def retrain(file: UploadFile = File(...)):
     X_train_scaled = new_scaler.fit_transform(X_train)
     X_test_scaled = new_scaler.transform(X_test)
 
+    # max_depth=5 matches the original training config so retrained models stay comparable
     new_model = DecisionTreeRegressor(max_depth=5, random_state=42)
     new_model.fit(X_train_scaled, y_train)
 
