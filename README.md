@@ -6,7 +6,7 @@
 
 **Live API (Swagger UI):** https://insuarance-charges-api.onrender.com/docs
 
-**Video Demo:** [Watch on YouTube](https://youtu.be/HFJpw1joXHE)
+**Video Demo:** https://youtu.be/HFJpw1joXHE
 
 ---
 
