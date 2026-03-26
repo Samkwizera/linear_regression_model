@@ -4,7 +4,7 @@
 
 **Dataset:** Medical Cost Personal Dataset — 1,338 records with 6 features (age, sex, BMI, children, smoker status, region). Source: [Kaggle - Medical Cost Personal Dataset](https://www.kaggle.com/datasets/mirichoi0218/insurance). The dataset covers diverse demographics across four US regions, providing rich variety for regression analysis.
 
-**Live API (Swagger UI):** https://insuarance-charges-api.onrender.com/docs
+**Live API (Swagger UI):** https://insuarance-charges-api.onrender.com/docs | **Base URL:** https://insuarance-charges-api.onrender.com
 
 **Video Demo:** https://youtu.be/HFJpw1joXHE
 
